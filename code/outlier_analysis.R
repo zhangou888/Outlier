@@ -109,16 +109,49 @@ boxplot(ozone_reading ~ Month, data=ozone,
 
 # this may not be significant, as day of week variable is a subset of the month var.
 boxplot(ozone_reading ~ Day_of_week, data=ozone,
-        main="Ozone reading for days of week")
+        main="Ozone reading for \n days of week")
 
 # For continuous variable (convert to categorical if needed.)
 boxplot(ozone_reading ~ pressure_height, data=ozone,
-        main="Boxplot for Pressure height (continuos var) vs Ozone")
+        main="Boxplot for Pressure \n height (continuos var) vs Ozone")
 
 boxplot(ozone_reading ~ cut(pressure_height,
                             pretty(inputData$pressure_height)),
-        data=ozone, main="Boxplot for Pressure height (categorial) vs Ozone",
+        data=ozone, main="Boxplot for Pressure \n height (categorial) vs Ozone",
         cex.axis=0.5)
+
+#------ Example 2--------------  #
+# Create sample data
+Gene_id <- c("GeneA", "GeneB", "GeneC", "GeneD", "GeneE", "GeneF")
+expA    <- c(5.462109, 2.667692, 4.796976, 3.127125, 4.500583, 4.598430)
+expB    <- c(5.006181, 4.208152, 4.122660, 3.676322, 4.104575, 4.853717)
+
+# Calculate log base two for results from each experiment
+log2_A <- log2(expA)
+log2_B <- log2(expB)
+
+# Plot data
+plot(log2_A~log2_B)
+
+# Calculate and display the regression line
+regression <- lm(log2_A~log2_B)
+abline(regression)
+
+# Show regression formula
+print(regression)
+
+# Create data frame for sample data
+data <- data.frame(Gene_id, expA, expB)
+
+# Calculate residuals
+data$residuals <- residuals(regression)
+
+# Choose a threshhold
+outlier_threshold <- 0.3
+
+# Print only names of outliers
+outliers <- data[ abs(data$residuals) > outlier_threshold, ]
+print(outliers$Gene_id)
 
 
 # =============== 1.3 Multivariate Model Approach =====================#
@@ -169,15 +202,20 @@ outlier(y,opposite=TRUE)
 # given percentile based on a given score.
 set.seed(1234)
 x = rnorm(10)
-scores(x)  # z-scores => (x-mean)/sd
-scores(x, type="chisq")  # chi-sq scores => (x - mean(x))^2/var(x)
-#> [1] 0.68458034 0.44007451 2.17210689 3.88421971 0.66539631  . . .
-scores(x, type="t")  # t scores
 
-scores(x, type="chisq", prob=0.9)  # beyond 90th %ile based on chi-sq
-scores(x, type="chisq", prob=0.95)  # beyond 95th %ile
-scores(x, type="z", prob=0.95)  # beyond 95th %ile based on z-scores
-scores(x, type="t", prob=0.95)  # beyond 95th %ile based on t-scores
+# z-scores => (x-mean)/sd
+scores(x)  
+
+# chi-sq scores => (x - mean(x))^2/var(x)
+scores(x, type="chisq")  
+#> [1] 0.68458034 0.44007451 2.17210689 3.88421971 0.66539631  . . .
+
+# t scores
+scores(x, type="t")  
+scores(x, type="chisq", prob=0.9)    # beyond 90th %ile based on chi-sq
+scores(x, type="chisq", prob=0.95)   # beyond 95th %ile
+scores(x, type="z", prob=0.95)       # beyond 95th %ile based on z-scores
+scores(x, type="t", prob=0.95)       # beyond 95th %ile based on t-scores
 
 # ------------- 3.0 Treating the outliers ----------- #
 # 1. Imputation

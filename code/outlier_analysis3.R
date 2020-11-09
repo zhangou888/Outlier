@@ -12,8 +12,8 @@
 ##          Note: This chapter explains the purpose of some of the most    ##
 ##         commonly used outlier analysis and how to implement them in R   ##
 ##          http://dss.princeton.edu/training/                             ##
-##         TheR content presented in this document is mostlybased on an    ##
-##         early versionof Fox, J. and Weisberg, S. (2011) An R Companion to
+##         The R content presented in this document is mostly based on an  ##
+##         early version of Fox, J. and Weisberg, S. (2011) An R Companion to
 ##  Applied Regression, Second Edition, Sage; and from class notes from the
 ##  ICPSR’s workshop Introduction to the R Statistical Computing Environment
 ##  taught by John Fox during the summer of 2010.
@@ -51,7 +51,6 @@ setwd(proj.path)
 library(car)
 
 # If not installed type install.packages("car")
-
 #Type help(Prestige) to access the codebook
 help(Prestige)
 data(Prestige)
@@ -72,8 +71,8 @@ library(sandwich) # Robust Covariance Matrix Estimators
 # from lib(sandwich)
 reg1$robse <- vcovHC(reg1, type = "HC1")
 
-# coeftest is a generic function for
-# performing z and (quasi-) t Wald tests of estimated coefficients.
+# coeftest is a generic function for performing z and (quasi-) t Wald tests 
+# of estimated coefficients.
 coeftest(reg1, reg1$robse)
 
 # --- Predicted values/Residuals --- #
@@ -158,11 +157,14 @@ reg6 <- lm(prestige ~ education + income + type,
            data = Prestige)
 
 # # id.n - id most influential observation
+# id.n - id observations with high residuals
 qqPlot(reg6, id.n=3)
 
-# id.n - id observations with high residuals
 
+
+#-------------------------------------##
 # ---- Outliers - Bonferonni Test --- ##
+#-------------------------------------##
 reg7 <- lm(prestige ~ education + income + type,
            data = Prestige)
 
@@ -174,7 +176,9 @@ outlierTest(reg7)
 reg8 <- lm(prestige ~ education + income + type,
            data = Prestige)
 
-
+#-------------------------------------##
+#------     Cook's Distance      -----##
+#-------------------------------------##
 # Cook's distance measures how much an observation influences the overall
 # model or predicted values
 
@@ -183,15 +187,16 @@ reg8 <- lm(prestige ~ education + income + type,
 
 # Bonferroni test to identify outliers
 
+#-------------------------------------##
+#-----      Hat-points         -------##
+#-------------------------------------##
 # Hat-points identify influential observations (have a high impact on the
 # predictor variables)
 influenceIndexPlot(reg8, id.n=3)
 
-
 # Note: if an observation is an outlier and influential (High leverage) then
 # that observation can change the fit of the linear model, it is advisable to
 # remove a case(s) type
-
 reg1a <- update(reg8, subset=rownames(Prestige) != "general.managers")
 reg1b <- update(reg8,
                 subset= !(rownames(Prestige) %in% c("general.managers",
@@ -204,7 +209,7 @@ reg1 <- lm(prestige ~ education + income + type, data=Prestige)
 
 # Creates a bubble-plot combining the display of Studentized residuals,
 # hat-values, and Cook's Distance (represented in circles)
-# This function creates a “bubble” plot of Studentized residuals
+# This function creates a bubble plot of Studentized residuals
 # versus hat values, with the areas of the circles representing the
 # observations proportional to the value Cook's distance.
 # Vertical reference lines are drawn at twice and three times
@@ -228,6 +233,7 @@ reg1 <- lm(prestige ~ education + income + type, data=Prestige)
 
 # non-constant variance score test
 ncvTest(reg1)
+
 # Breush/Pagan and Cook/Weisberg score test for non-constant error variance.
 # Null is constant variance, see also residualPlots(reg1)
 residualPlots(reg1)
