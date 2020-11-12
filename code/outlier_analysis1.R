@@ -72,7 +72,8 @@ plot(cars2$speed, cars2$dist,
 # regression reference line
 abline(lm(dist ~ speed, data=cars2), col="blue", lwd=3, lty=2)
 
-# Plot of original data without outliers. Note the change in slope (angle) of best fit line.
+# Plot of original data without outliers.
+# Note the change in slope (angle) of best fit line.
 plot(cars1$speed, cars1$dist,
      xlim=c(0, 28), ylim=c(0, 230),
      main="Outliers removed \n A much better fit!",
@@ -168,7 +169,7 @@ cooksd <- cooks.distance(mod)
 # plot cook's distance
 plot(cooksd, pch="*", cex=2, main="Influential Obs by Cooks distance")
 
-# add cutoff line (4)
+# add cutoff line (cookD > 4 x average cooksd )
 abline(h = 4*mean(cooksd, na.rm=T), col="red")
 
 # add labels
@@ -186,14 +187,14 @@ car::outlierTest(mod)
 
 set.seed(1234)
 y=rnorm(100)
-outlier(y)
+outliers::outlier(y)
 #> [1] 2.548991
-outlier(y,opposite=TRUE)
+outliers::outlier(y,opposite=TRUE)
 #> [1] -2.345698
 dim(y) <- c(20,5)  # convert it to a matrix
-outlier(y)
+outliers::outlier(y)
 #> [1] 2.415835 1.102298 1.647817 2.548991 2.121117
-outlier(y,opposite=TRUE)
+outliers::outlier(y,opposite=TRUE)
 
 # There are two aspects to the scores() function.
 
@@ -204,18 +205,18 @@ set.seed(1234)
 x = rnorm(10)
 
 # z-scores => (x-mean)/sd
-scores(x)  
+outliers::scores(x)
 
 # chi-sq scores => (x - mean(x))^2/var(x)
-scores(x, type="chisq")  
+outliers::scores(x, type="chisq")
 #> [1] 0.68458034 0.44007451 2.17210689 3.88421971 0.66539631  . . .
 
 # t scores
-scores(x, type="t")  
-scores(x, type="chisq", prob=0.9)    # beyond 90th %ile based on chi-sq
-scores(x, type="chisq", prob=0.95)   # beyond 95th %ile
-scores(x, type="z", prob=0.95)       # beyond 95th %ile based on z-scores
-scores(x, type="t", prob=0.95)       # beyond 95th %ile based on t-scores
+outliers::scores(x, type="t")
+outliers::scores(x, type="chisq", prob=0.9)    # beyond 90th %ile based on chi-sq
+outliers::scores(x, type="chisq", prob=0.95)   # beyond 95th %ile
+outliers::scores(x, type="z", prob=0.95)       # beyond 95th %ile based on z-scores
+outliers::scores(x, type="t", prob=0.95)       # beyond 95th %ile based on t-scores
 
 # ------------- 3.0 Treating the outliers ----------- #
 # 1. Imputation
@@ -239,5 +240,5 @@ x[x > (qnt[2] + H)] <- caps[2] # higher end replacement
 
 # 3. prediction.
 
-
+# --- EOF --- #
 

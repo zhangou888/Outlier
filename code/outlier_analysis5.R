@@ -45,6 +45,7 @@ sigma2 <- matrix(c(5, 2, 2, 5), ncol=2)
 mu <- c(5,5)
 
 # Get the correlation matrix
+# scales a covariance matrix into the corresponding correlation matrix.
 P <- cov2cor(sigma2)
 
 # Generate the data
@@ -54,8 +55,8 @@ p <- rmvnorm(n=50, mean=mu, sigma=sqrt(sigma2))
 plot(p)
 
 # Plot the ellipse
-# lines(ellipse(P, centre = c(5,5)) , col='red')
-ellipse(P, centre = c(5,5)) %>% 
+# lines(ellipse(P, centre = c(5,5)) -> center is the mean , col='red')
+ellipse(P, centre = c(5,5)) %>%
   lines(., col='red')
 
 # obtain Eigenvalue and eigenvector
@@ -64,6 +65,7 @@ evecs <- eigen(P)$vectors
 
 # Angles of a circle
 a <- seq(0, 2*pi, len=100)
+
 # Get critical value
 c2 <- qchisq(0.95, 2)
 c <- sqrt(c2)
@@ -84,10 +86,10 @@ lines(transM + mu)
 # Plot the estimate and joint 90% confidence region for the displacement and cylinder
 # count linear coefficients in the mtcars dataset
 data(mtcars)
-fit <- lm(mpg ~ disp + cyl , mtcars)
+fit <- lm(mpg ~ disp + cyl, data=mtcars)
 
 # which indicate IVs.
-plot(ellipse(fit, which = c('disp', 'cyl'), 
+plot(ellipse(fit, which = c('disp', 'cyl'),
              level = 0.95), type = 'l')
 
 points(fit$coefficients['disp'], fit$coefficients['cyl'])
@@ -104,3 +106,5 @@ dataEllipse(z,levels=.95)
 center <- apply(z, 2, mean)
 cov_mat <- cov(z)
 ellipse(center, cov_mat, col="red", radius=sqrt(2 * qf(.95, 2, 9999)))
+
+# --- EOF --- #

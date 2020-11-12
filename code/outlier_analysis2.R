@@ -1,6 +1,6 @@
 #############################################################################
 #                                                                          ##
-##          Project: Outliers detection in R                               ##
+##          Project: Univariate Outliers detection in R                    ##
 ##                                                                         ##
 ##-------------------------------------------------------------------------##
 ##          Programmer: Anthoine Setwey                                    ##

@@ -1,6 +1,6 @@
 #############################################################################
 #                                                                          ##
-##          Project: Outliers detection in R                               ##
+##          Project: Outliers detection in Regression 2                    ##
 ##                                                                         ##
 ##-------------------------------------------------------------------------##
 ##          Programmer: William G. Jacoby  (MSU)                           ##
@@ -9,7 +9,7 @@
 ##          Goals:                                                         ##
 ##          Input:                                                         ##
 ##          Output:                                                        ##
-##          Note: 
+##          Note:
 ##         data : https://quantoid.net/files/702/weakliem2.txt
 ##-------------------------------------------------------------------------##
 ##          Modification History:                                          ##
@@ -41,29 +41,43 @@ out.path = file.path(proj.path,"out/");
 setwd(proj.path)
 
 # Ex 1 (use Weakliem.txt DATA)
-weakliem2 <- read.table("C:/R/projects/outlier/Outlier/data/weakliem.txt", 
+# Data from World Values Survey 1990.
+# Variable- secpay: attitude to two secretaries with the same jobs
+# getting paid different amounts if one is better at the job than the other.
+# 1=Fair, 2=Unfair.
+# gini: the gini coefficient of income inequality in the country.
+# 0=perfect equality, 1=perfect inequality.
+# gdp: GDP per capita in US dollars;
+# democracy: 1=experienced democratic rule for at least 10 years.
+# Here we look only at non-democratic countries.
+weakliem2 <- read.table("C:/R/projects/outlier/Outlier/data/weakliem.txt",
                         header=TRUE)
 attach(weakliem2)
 
 # check the data structure.
 str(weakliem2)
 head(weakliem2)
-weakliem2 <- weakliem2 %>% 
+weakliem2 <- weakliem2 %>%
   mutate(id = row_number())
 
-plot(gini, secpay, main = "Nondemocratic countries", 
+plot(gini, secpay, main = "Nondemocratic countries",
      xlab="Gini", ylab="Attitudes towards inequality(mean)")
 
 
 # Model 1
 weakliem.model1 <- lm(secpay~gini+gdp, data=weakliem2)
 
-# adding regression line
-abline(weakliem.model1, lwd=2, lty=1, col=1)
 
 # draw 95% CI ellipse
 # from library(car)
-confidenceEllipse(weakliem.model1, levels=0.95,Scheffe=TRUE)
+
+# confidenceEllipse(weakliem.model1, levels=0.95,Scheffe=TRUE)
+car::dataEllipse(gini, secpay, levels=0.95, lty=1,
+                 main = "Nondemocratic countries",
+                 xlab="Gini", ylab="Attitudes towards inequality(mean)")
+
+# adding regression line
+abline(weakliem.model1, lwd=2, lty=1, col=1)
 
 
 # "identify" remove 'slovakia'(49) and 'CzechRepublic'(25) as outliers.
@@ -80,7 +94,7 @@ print(xtable(weakliem.model1))
 print(xtable(weakliem.model2))
 
 
-# ---- Ex 2: Davis DATA from car --- # 
+# ---- Ex 2: Davis DATA from car --- #
 # These data are the Davis data in the car package
 library(car)
 data(Davis)
@@ -91,6 +105,7 @@ davis.model.1 <- lm(repwt~weight, data=Davis)
 model1 <- lm(weight ~ height, data=Davis)
 
 plot(height, weight, main = "Davis data")
+
 
 # on-time identify outlier (click on the graph)
 identify(height, weight, row.names(Davis))
@@ -115,12 +130,12 @@ legend(locator(1), lty=1:2, col=1:2, lwd=3,
 # variable X.
 
 # ----- 2. Cases with Leverage -----
-# An observation that has an unusual X value-i.e., it is far from 
-# the mean of X-has leverage on (i.e., the potential to influence) 
+# An observation that has an unusual X value-i.e., it is far from
+# the mean of X-has leverage on (i.e., the potential to influence)
 # the regression line
 
-# The further away from from the mean of X (either in a positive or 
-# negative direction), the more leverage an observation has on the 
+# The further away from from the mean of X (either in a positive or
+# negative direction), the more leverage an observation has on the
 # regression fit.
 
 # ----- 3. Influential Observations -----
@@ -137,7 +152,7 @@ legend(locator(1), lty=1:2, col=1:2, lwd=3,
 
 ## ------------------------------------------ ##
 ## ----------- High leverage -----------------##
-# Assessing Leverage: Hat Values (1) 
+# Assessing Leverage: Hat Values (1)
 # Most common measure of leverage is the hat-value
 # ---- R script for plot of Hat Values --- #
 plot(hatvalues(weakliem.model1), main="Hat Values for Ineqaulity model")
@@ -149,7 +164,7 @@ abline(h=c(2,3)*3/length(secpay), lty=2)
 # a Rule of thumb is that 2*average hat value
 # for small samples should be examined
 # These cases have high leverage, but not necessarily high influence.
-identify(1:length(secpay),
+graphics::identify(1:length(secpay),
          hatvalues(weakliem.model1),
          row.names(weakliem2))
 
@@ -161,6 +176,7 @@ identify(1:length(secpay),
 # have small residuals because they pull the line towards them.
 
 out1 <- outlierTest(weakliem.model1)
+(out1)
 weakliem2$country[49]
 
 
@@ -168,14 +184,14 @@ weakliem2$country[49]
 # ----------- Quantile Comparison Plots --------- #
 ## --------------------------------------------- ##
 # compare the distribution of the studentized residuals from our
-# regression model to the t-distribution 
+# regression model to the t-distribution
 # Observations that stray outside of the 95% confidence
 # envelope are statistically significant outliers
-library(car)
-qqPlot(weakliem.model1, simulate=TRUE,
-        labels = weakliem2$country)
 # simulate = TRUE specifies a bootstrap
 # 95% confidence envelope
+car::qqPlot(weakliem.model1, simulate=TRUE,
+       labels = weakliem2$country,
+       envelope=.95)
 
 
 ## --------------------------------------------- ##
@@ -185,17 +201,18 @@ qqPlot(weakliem.model1, simulate=TRUE,
 #  combines discrepancy with leverage.
 weakliem.dfbetas <- dfbetas(weakliem.model1)
 
-weakliem.dfbetas 
-unclass(weakliem.dfbetas)
+# weakliem.dfbetas
+# unclass(weakliem.dfbetas)
 
 # c(2,3) specifies the coefficients of interests
 plot(weakliem.dfbetas[,c(2,3)],
+     xlim = c(-2,2),ylim=c(-1,1),
      main="DFBetas for the Gini and GDP coefficients")
 
 # adds the rule of thumb cut-off line
 abline(h=2/sqrt(length(weakliem2)), lty=2)
 # identify influential points
-identify(weakliem.defbetas[,2], weakliem.defbetas[,3],
+graphics::identify(weakliem.dfbetas[,2], weakliem.dfbetas[,3],
          weakliem2$country)
 
 #  A problem with DFBetas is that each observation has several measures of
@@ -203,20 +220,20 @@ identify(weakliem.defbetas[,2], weakliem.defbetas[,3],
 
 
 ## -------------------------------------------------------- ##
-#       ----------      Cook's D   ---------                ## 
+#       ----------      Cook's D   ---------                ##
 ## -------------------------------------------------------- ##
-# Cook's D overcomes the problem by presenting a single summary 
+# Cook's D overcomes the problem by presenting a single summary
 # measure for each observation
 plot(cooks.distance(weakliem.model1))
 abline(h=4/length(weakliem2), lty=2)
-identify(1:dim(weakliem2)[1], cooks.distance(weakliem.model1), 
+graphics::identify(1:dim(weakliem2)[1], cooks.distance(weakliem.model1),
          weakliem2$country)
 
 
 ## -------------------------------------------------------- ##
-#       ----------     Influence Plot   ---------           ## 
+#       ----------     Influence Plot   ---------           ##
 ## -------------------------------------------------------- ##
-# Influence plot displays studentized residuals, hat-values 
+# Influence plot displays studentized residuals, hat-values
 # and Cook's D on a single plot
 plot(hatvalues(weakliem.model1),
      rstudent(weakliem.model1), ylim=c(-3,6), type="n",
@@ -229,44 +246,32 @@ points(hatvalues(weakliem.model1),
 
 # line for hatvalues.
 abline(v=3/25, lty=2)
+
 # lines for studentized residuals
 abline(h=c(-2,0,2), lty=2)
-identify(hatvalues(weakliem.model1), rstudent(weakliem.model1), 
+graphics::identify(hatvalues(weakliem.model1), rstudent(weakliem.model1),
          weakliem2$country)
 
 
-## Joint Influence 
+## Joint Influence
 
 ## -------------------------------------------------------- ##
-# ----------     Partial Regression plots   ---------       ## 
+# ----------     Partial Regression plots   ---------       ##
 ## -------------------------------------------------------- ##
 # Added variable plots(Partial regression plot)
 # This allows you to choose the variables interactively
-avPlots(weakliem.model1)
+car::avPlots(weakliem.model1)
 
 # This method you choose the variable of interest
-leveragePlot(weakliem.model1, 'gini')
+car::leveragePlot(weakliem.model1, 'gini')
 
 # ------ Unusual Observations and their impact on Standard Errors --- #
 
-# An observation with high leverage (i.e., an X-value far from the mean of X) 
+# An observation with high leverage (i.e., an X-value far from the mean of X)
 # increases the size of the denominator, and thus decreases the standard error
 
-# A regression outlier (i.e., a point with a large residual) that does 
-# not have leverage (i.e., it does not have an unusual X-value) 
+# A regression outlier (i.e., a point with a large residual) that does
+# not have leverage (i.e., it does not have an unusual X-value)
 # does not change the slope coefficients but will increase the standard error
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 # --- EOF --- #
